@@ -1,1 +1,1 @@
-# thinking-with-types
+# _Thinking With Types_ exercises
