@@ -42,50 +42,60 @@ Function types have the cardinality of:
 for any a we need to produce the appropriate b so we will end up with b to the
 power of a number of types.
 
-Exercise 1.2-i
---------------
-Determine the cardinality of
+-}
 
-  Either Bool (Bool,Maybe Bool) -> Bool
+-- Exercise 1.2-i
+-- --------------
+-- Determine the cardinality of
+--
+--   Either Bool (Bool,Maybe Bool) -> Bool
+--
+-- Solution:
+--   2 + (2 x (1 + 2)) x (2^8) = 256
+--
+-- Exercise 1.4-i
+-- --------------
+-- Use Curry-Howard to prove that
+--   (a^b)^c  = a^(b x c)
+-- That is, provide a function of type
+--   > (b -> c -> a) -> (b,c) -> a
+--   > ((b -> c) -> a) -> b -> c -> a
+-- Do these functions remind you of anything from Prelude ?
+--
+-- Solution:
+--
+-- ex :: (b -> c -> a) -> (b,c) -> a
+-- ex f (b,c) = f (b,c)
+--
+-- ex1 :: ((b -> c) -> a) -> b -> c -> a
+-- ex1 f b c = f b c
+--
+-- So cardinality of function (a -> b) (one argument)  is  b^a
+-- cardinality of function (a -> b -> c) would then be c^(b^a)
+-- if we specialise the types to Bool then we end up with
+--  (Bool -> Bool -> Bool) = 2^(2^2)
+-- 2^(2^2) == 2 (2 x 2) = 2^4
+--
+-- uncurry/curry from Prelude
 
-Solution:
-  2 + (2 x (1 + 2)) x (2^8) = 256
+-- Exercise 1.4-ii
+-- --------------
+--   Give a proof of the exponent law that a^b x a^c = a ^(b + c)
 
-Exercise 1.4-i
---------------
-Use Curry-Howard to prove that
-  (a^b)^c  = a^(b x c)
-That is, provide a function of type
-  > (b -> c -> a) -> (b,c) -> a
-  > ((b -> c) -> a) -> b -> c -> a
-Do these functions remind you of anything from Prelude ?
+exTo :: (b -> a) -> (c -> a) -> Either b c -> a
+exTo f _ (Left b) = f b
+exTo _ f (Right c) = f c
 
-Solution:
-
-ex :: (b -> c -> a) -> (b,c) -> a
-ex f (b,c) = f (b,c)
-
-ex1 :: ((b -> c) -> a) -> b -> c -> a
-ex1 f b c = f b c
-
-So cardinality of function (a -> b) (one argument)  is  b^a
-cardinality of function (a -> b -> c) would then be c^(b^a)
-if we specialise the types to Bool then we end up with
- (Bool -> Bool -> Bool) = 2^(2^2)
-2^(2^2) == 2 (2 x 2) = 2^4
-
-uncurry/curry from Prelude
-
-
-Exercise 1.4-ii
---------------
-  Give a proof of the exponent law that a^b x a^c = a ^(b + c)
-exTo :: (a -> c) -> (b -> c) -> Either a b -> c
-exTo f _ (Left a) = f a
-exTo _ f (Right b) = f' b
-
-exFrom :: (Either a b -> c) -> (a -> c, b -> c)
+exFrom :: (Either b c -> a) -> (b -> a, c -> a)
 exFrom f = (f . Left, f . Right)
 
--}
+-- Exercise 1.4-iii
+-- Prove (a x b)^c = a^c x b^c
+
+ex1To :: (c -> (a, b)) -> (c -> a, c -> b)
+ex1To f = (fst . f, snd . f)
+
+
+ex1From :: (c -> a) -> (c -> b) -> c -> (a, b)
+ex1From f g c = (f c, g c)
 
