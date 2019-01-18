@@ -1,5 +1,6 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE InstanceSigs        #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -fshow-hole-constraints #-}
 module Chapter07 where
 
@@ -65,10 +66,17 @@ cpsTail :: [a] -> o -> ([a] -> o) -> o
 cpsTail [] d = \f -> d
 cpsTail (a:as) d = \f -> f as
 
+cpsLoop :: (forall o. [a] -> o -> ([a] -> o) -> o) -> [a] -> [a]
+cpsLoop f l =
+  case f l l id of
+    [] -> l
+    list -> cpsLoop f list
+
 safeTail :: [a] -> Maybe [a]
 safeTail [] = Nothing
 safeTail (x:xs) = Just xs
 
+loop :: (a -> Maybe a) -> a -> a
 loop f a = maybe a (loop f) (f a)
 
 
