@@ -60,3 +60,10 @@ instance Monad (ContT m) where
   (>>=) :: ContT m a -> (a -> ContT m b) -> ContT m b
   ContT m >>= f = ContT $ \x ->
     m (\y -> unContT (f y) x)
+
+cpsTail :: [a] -> o -> ([a] -> o) -> o
+cpsTail [] def = def
+cpsTail list _ = \f -> f list
+
+
+
