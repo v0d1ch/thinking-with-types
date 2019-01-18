@@ -62,8 +62,14 @@ instance Monad (ContT m) where
     m (\y -> unContT (f y) x)
 
 cpsTail :: [a] -> o -> ([a] -> o) -> o
-cpsTail [] def = def
-cpsTail list _ = \f -> f list
+cpsTail [] d = \f -> d
+cpsTail (a:as) d = \f -> f as
+
+safeTail :: [a] -> Maybe [a]
+safeTail [] = Nothing
+safeTail (x:xs) = Just xs
+
+loop f a = maybe a (loop f) (f a)
 
 
 
