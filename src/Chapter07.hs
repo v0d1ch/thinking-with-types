@@ -20,7 +20,6 @@ instance Applicative Cont where
 
   (<*>) :: Cont (a -> b) -> Cont a -> Cont b
   (<*>) (Cont f) (Cont a) =
-    -- Cont (\br -> br $ f a)
     Cont $ \br ->
       f $ \ab ->
         a $ br . ab
@@ -30,4 +29,5 @@ instance Applicative Cont where
 instance Monad Cont where
   return = pure
   (>>=) :: Cont a -> (a -> Cont b) -> Cont b
-  Cont m >>= f = Cont $ undefined
+  Cont m >>= f = Cont $ \x ->
+    m (\y -> unCont (f y) x)
