@@ -67,10 +67,7 @@ cpsTail [] d = \f -> d
 cpsTail (a:as) d = \f -> f as
 
 cpsLoop :: (forall o. [a] -> o -> ([a] -> o) -> o) -> [a] -> [a]
-cpsLoop f l =
-  case f l l id of
-    [] -> l
-    list -> cpsLoop f list
+cpsLoop f l = f l l id
 
 safeTail :: [a] -> Maybe [a]
 safeTail [] = Nothing
