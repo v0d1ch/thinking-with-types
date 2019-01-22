@@ -67,7 +67,7 @@ cpsTail [] d = \f -> d
 cpsTail (a:as) d = \f -> f as
 
 cpsLoop :: (forall o. [a] -> o -> ([a] -> o) -> o) -> [a] -> [a]
-cpsLoop f l = f l l id
+cpsLoop f l = f l l $ cpsLoop f
 
 safeTail :: [a] -> Maybe [a]
 safeTail [] = Nothing
@@ -75,6 +75,25 @@ safeTail (x:xs) = Just xs
 
 loop :: (a -> Maybe a) -> a -> a
 loop f a = maybe a (loop f) (f a)
+-----------------------------------------
+  --
+class Functor m => Comonad m where
+  extract :: m a -> a
+  extend :: m a -> (m a -> b) -> m b
 
+  {- Laws:
+extend extract = id
+extract . extend f = f
+extend f . extend g = extend (f . extend g)
+-}
+
+data Store s a = Store (s -> a) s
+
+instance Functor (Store s) where
+  fmap = _
+
+instance Comonad (Store s) where
+  extract = _
+  extend = _
 
 
