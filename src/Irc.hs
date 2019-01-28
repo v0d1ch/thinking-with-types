@@ -49,4 +49,32 @@ instance Comonad (Store s) where
   extend :: Store s a -> (Store s a -> b) -> Store s b
   extend (Store s a) f = Store (\x -> f (Store s a)) a
 
+-- Here's a couple of "standard store functions" you might want to implement.
+-- https://gist.github.com/dminuoso/ac6d72cf8d83d96b84ecdc23ed44cae2 ->
+-- try them out to get a feeling for them, and then implement the entire Comonad
+-- instance using those utility functions.
+-- 9:01 AM <dminuoso> v0d1ch: Also note that the last utility function
+-- `experiment` is included for completeness and will play a really interesting
+-- role in the next excercise. :)
 
+data Store s a = Store (s -> a) s
+
+-- Read out the store at some specific position
+peek :: s -> Store s a -> a
+peek = _
+
+-- Modify the current focus, and read the store using the new focus.
+peeks :: (s -> s) -> Store s a -> a
+peeks = _
+
+-- Set the current focus
+seek :: s -> Store s a -> Store s a
+seek = _
+
+-- Modify the current focus
+seeks :: (s -> s) -> Store s a -> Store s a
+seeks = _
+
+-- Run an experiment in the store.
+experiment :: Functor f => (s -> f s) -> Store s a -> f a
+experiment = _
