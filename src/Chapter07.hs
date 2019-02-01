@@ -41,6 +41,7 @@ instance Applicative (ContT m) where
   (<*>) (ContT f) (ContT a) =
     ContT $ \br ->
       f $ \ab ->
+
         a $ br . ab
 
 -- Exercise 6.4-iii

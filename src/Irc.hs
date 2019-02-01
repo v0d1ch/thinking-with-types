@@ -1,6 +1,6 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE InstanceSigs #-}
-{-# OPTIONS_GHC  -fshow-hole-constraints #-}
+{-# OPTIONS_GHC  -Wall -fshow-hole-constraints #-}
 
 
 module Irc where
@@ -10,8 +10,8 @@ module Irc where
   -- just to throw it away, like with safeTail here
 
 cpsTail :: [a] -> o -> ([a] -> o) -> o
-cpsTail [] d = \f -> d
-cpsTail (a:as) d = \f -> f as
+cpsTail [] d = \_ -> d
+cpsTail (_:as) _ = \f -> f as
 
 cpsLoop :: (forall o. [a] -> o -> ([a] -> o) -> o) -> [a] -> [a]
 cpsLoop f l = f l l $ cpsLoop f
@@ -20,7 +20,7 @@ cpsLoop f l = f l l $ cpsLoop f
 -- is not doing anything particularly useful, remember, this is just a playground
 safeTail :: [a] -> Maybe [a]
 safeTail [] = Nothing
-safeTail (x:xs) = Just xs
+safeTail (_:xs) = Just xs
 
 loop :: (a -> Maybe a) -> a -> a
 loop f a = maybe a (loop f) (f a)
@@ -36,6 +36,10 @@ extend f . extend g = extend (f . extend g)
 -}
 
 -- define some interesting Comonad instances
+-- <dminuoso> v0d1ch: A Store is a generalized indexed container that has a
+-- "current position"
+-- <dminuoso> v0d1ch: So in a store you can "read out an arbitrary position",
+-- "read out the current position" or "seek to a new position"
 data Store s a = Store (s -> a) s
 
 instance Functor (Store s) where
@@ -47,7 +51,7 @@ instance Comonad (Store s) where
   extract (Store f s) = f s
 
   extend :: Store s a -> (Store s a -> b) -> Store s b
-  extend (Store s a) f = Store (\x -> f (Store s a)) a
+  extend store@(Store _ a) f =  Store (\_ -> f store) a
 
 -- Here's a couple of "standard store functions" you might want to implement.
 -- https://gist.github.com/dminuoso/ac6d72cf8d83d96b84ecdc23ed44cae2 ->
@@ -57,24 +61,22 @@ instance Comonad (Store s) where
 -- `experiment` is included for completeness and will play a really interesting
 -- role in the next excercise. :)
 
-data Store s a = Store (s -> a) s
-
 -- Read out the store at some specific position
 peek :: s -> Store s a -> a
-peek = _
+peek s (Store f _) = f s
 
 -- Modify the current focus, and read the store using the new focus.
 peeks :: (s -> s) -> Store s a -> a
-peeks = _
+peeks f (Store f' s) = f' (f s)
 
 -- Set the current focus
 seek :: s -> Store s a -> Store s a
-seek = _
+seek s (Store f _) = Store f s
 
 -- Modify the current focus
 seeks :: (s -> s) -> Store s a -> Store s a
-seeks = _
+seeks f (Store f' s) = Store f' (f s)
 
 -- Run an experiment in the store.
 experiment :: Functor f => (s -> f s) -> Store s a -> f a
-experiment = _
+experiment = undefined
