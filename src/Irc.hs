@@ -79,4 +79,4 @@ seeks f (Store f' s) = Store f' (f s)
 
 -- Run an experiment in the store.
 experiment :: Functor f => (s -> f s) -> Store s a -> f a
-experiment = undefined
+experiment f (Store s a) = fmap s (f a)
