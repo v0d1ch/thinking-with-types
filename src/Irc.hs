@@ -66,6 +66,10 @@ duplicate (Store f s) = Store (\x -> Store f x) s
 -- `experiment` is included for completeness and will play a really interesting
 -- role in the next excercise. :)
 
+-- Get the store focus
+pos :: Store s a -> s
+pos (Store _ a) = a
+
 -- Read out the store at some specific position
 peek :: s -> Store s a -> a
 peek s (Store f _) = f s
@@ -85,3 +89,4 @@ seeks f (Store f' s) = Store f' (f s)
 -- Run an experiment in the store.
 experiment :: Functor f => (s -> f s) -> Store s a -> f a
 experiment f (Store s a) = fmap s (f a)
+
