@@ -50,10 +50,13 @@ instance Comonad (Store s) where
   extract :: Store s a -> a
   extract (Store f s) = f s
 
+  -- "replacing all values with containers, and then consuming those containers again"
   extend :: Store s a -> (Store s a -> b) -> Store s b
-  extend store@(Store _ a) f =
-    Store (\_ -> b) a
-      where b = f $ seek a store
+  extend s f = fmap f $ duplicate s
+   -- verbose: Store (\x -> f' $ Store f x) s
+
+duplicate :: Store s a -> Store s (Store s a)
+duplicate (Store f s) = Store (\x -> Store f x) s
 
 -- Here's a couple of "standard store functions" you might want to implement.
 -- https://gist.github.com/dminuoso/ac6d72cf8d83d96b84ecdc23ed44cae2 ->
