@@ -51,7 +51,9 @@ instance Comonad (Store s) where
   extract (Store f s) = f s
 
   extend :: Store s a -> (Store s a -> b) -> Store s b
-  extend store@(Store _ a) f =  Store (\_ -> f store) a
+  extend store@(Store _ a) f =
+    Store (\_ -> b) a
+      where b = f $ seek a store
 
 -- Here's a couple of "standard store functions" you might want to implement.
 -- https://gist.github.com/dminuoso/ac6d72cf8d83d96b84ecdc23ed44cae2 ->
