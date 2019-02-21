@@ -121,7 +121,7 @@ instance Applicative Vec3 where
 
 instance Foldable Vec3 where
    foldr :: (a -> b -> b) -> b -> Vec3 a -> b
-   foldr f d (Vec3 a _ _) = f a d
+   foldr f d (Vec3 a b c) = f a (f b (f c d))
 
 instance Traversable Vec3 where
   traverse :: Applicative f => (a -> f b) -> Vec3 a -> f (Vec3 b)
