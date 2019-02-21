@@ -1,5 +1,6 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE InstanceSigs    #-}
+{-# LANGUAGE RankNTypes      #-}
 {-# OPTIONS_GHC  -Wall -fshow-hole-constraints #-}
 
 
@@ -89,4 +90,40 @@ seeks f (Store f' s) = Store f' (f s)
 -- Run an experiment in the store.
 experiment :: Functor f => (s -> f s) -> Store s a -> f a
 experiment f (Store s a) = fmap s (f a)
+
+-- So take
+-- 16:12 experiment :: Functor f => (s -> f s) -> Store s a -> f a
+-- 16:12 The original definition of Store was:
+-- 16:12 data Store s a = Store (s -> a) s
+-- 16:12 An alternative definition is:
+-- 16:13 newtype Pretext s a = Pretext { runPretext :: forall f. Functor f => (s -> f s) -> f a }
+-- 16:13 Which can be thought of as `experiment` partially applied to a Store.
+-- 16:13 Turns out that this representation is 100% equivalent. =)
+-- 16:13 <v0d1ch> Sasa Bogicevic I see
+-- 16:14
+-- <dminuoso> Just ask If you enabled DerivingFunctor you could write this as:
+-- If you want a real good challenge, try implementing `instance Comonad (Pretext s)
+-- 16:15 <dminuoso> The elegant form can be found if you define it in terms of extract/duplicate rather than extract/extend.
+-- 16:15 <dminuoso> But it's tricky to find.
+
+newtype Pretext s a = Pretext { runPretext :: forall f. Functor f => (s -> f s) -> f a } deriving Functor
+
+-- 15:45 Now I want you to implement: Functor, Applicative and Traversable.
+--
+data Vec3 a = Vec3 a a a deriving (Eq, Show)
+
+instance Functor Vec3 where
+  fmap f (Vec3 a b c) = Vec3 (f a) (f b) (f c)
+
+instance Applicative Vec3 where
+  pure a = Vec3 a a a
+  (Vec3 f f' f'') <*> (Vec3 a b c)  =  Vec3 (f a) (f' b) (f'' c)
+
+instance Foldable Vec3 where
+   foldr :: (a -> b -> b) -> b -> Vec3 a -> b
+   foldr f d (Vec3 a _ _) = f a d
+
+instance Traversable Vec3 where
+  traverse :: Applicative f => (a -> f b) -> Vec3 a -> f (Vec3 b)
+  traverse f (Vec3 a b c) = Vec3 <$> f a <*> f b <*> f c
 
