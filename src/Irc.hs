@@ -152,5 +152,5 @@ traverseX f (Vec3 a b c) = Vec3 <$> f a <*> pure b <*> pure c
 -- liftA2 p (liftA2 q u v) = liftA2 f u . liftA2 g v
 --
 traverseF :: Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)
-traverseF f (Vec3 a b c) = let x = fmap Vec3 (f a) in fmap (\z -> z c) $ fmap (\y -> y b) x
+traverseF f (Vec3 a b c) = let t = fmap Vec3 (f a) in fmap ((\c' -> c' c) . (\b' -> b' b)) t
 
