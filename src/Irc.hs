@@ -151,6 +151,26 @@ traverseX f (Vec3 a b c) = Vec3 <$> f a <*> pure b <*> pure c
 -- it follows from the above that
 -- liftA2 p (liftA2 q u v) = liftA2 f u . liftA2 g v
 --
-traverseF :: Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)
-traverseF f (Vec3 a b c) = let t = fmap Vec3 (f a) in fmap ((\c' -> c' c) . (\b' -> b' b)) t
+traverseA :: Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)
+traverseA f (Vec3 a b c) = (\x -> Vec3 x b c) <$> f a
+-- fmap ((\g' g'' y -> g' (g'' y)) ((\f' f'' x -> f' (f'' x)) (\c' -> c' c) (\b' -> b' b)) Vec3) (f a)
+-- ($ c) . ($ b) . Vec3
+-- (\x -> Vec3 x b c) <$> (f a)
+
+traverseB :: Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)
+traverseB f (Vec3 a b c) = (\x -> Vec3 a x c) <$> f b
+
+traverseC :: Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)
+traverseC f (Vec3 a b c) = (\x -> Vec3 a b x) <$> f c
+
+traverseL :: Functor f => ((a -> f a) -> Vec3 a -> f (Vec3 a)) -> (a -> f a) -> Vec3 a -> f (Vec3 a)
+traverseL f f' v = f f' v
+
+type Lens s a = forall f. Functor f => (a -> f a) -> s -> f s
+
+over :: (forall f. Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)) -> (a -> a) -> Vec3 a -> Vec3 a
+over f f' v = runIdentity $ f (Identity . f') v
+
+get :: Lens s a -> a -> s
+get l d = getConst (l Const) d
 
