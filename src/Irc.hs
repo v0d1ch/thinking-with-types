@@ -5,6 +5,7 @@
 
 
 module Irc where
+import Data.Functor.Identity
 ---------------------------------------
   -- there is a significant improvement in performance
   -- if there is no indirection with creating a data structure
@@ -126,4 +127,30 @@ instance Foldable Vec3 where
 instance Traversable Vec3 where
   traverse :: Applicative f => (a -> f b) -> Vec3 a -> f (Vec3 b)
   traverse f (Vec3 a b c) = Vec3 <$> f a <*> f b <*> f c
+
+traverseX :: Applicative f => (a -> f a) -> Vec3 a -> f (Vec3 a)
+traverseX f (Vec3 a b c) = Vec3 <$> f a <*> pure b <*> pure c
+-- relax the constraint to Functor by applying the laws:
+-- Applicative laws:
+-- identity
+--     pure id <*> v = v
+-- composition
+--     pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+-- homomorphism
+--     pure f <*> pure x = pure (f x)
+-- interchange
+--     u <*> pure y = pure ($ y) <*> u
+-- The other methods have the following default definitions, which may be
+-- overridden with equivalent specialized implementations:
+--     u *> v = (id <$ u) <*> v
+--     u <* v = liftA2 const u v
+-- As a consequence of these laws, the Functor instance for f will satisfy
+--     fmap f x = pure f <*> x
+-- It may be useful to note that supposing
+-- forall x y. p (q x y) = f x . g y
+-- it follows from the above that
+-- liftA2 p (liftA2 q u v) = liftA2 f u . liftA2 g v
+--
+traverseF :: Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)
+traverseF f (Vec3 a b c) = let x = fmap Vec3 (f a) in fmap (\z -> z c) $ fmap (\y -> y b) x
 
