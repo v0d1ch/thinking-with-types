@@ -6,6 +6,7 @@
 
 module Irc where
 import Data.Functor.Identity
+import Data.Functor.Const
 ---------------------------------------
   -- there is a significant improvement in performance
   -- if there is no indirection with creating a data structure
@@ -128,8 +129,8 @@ instance Traversable Vec3 where
   traverse :: Applicative f => (a -> f b) -> Vec3 a -> f (Vec3 b)
   traverse f (Vec3 a b c) = Vec3 <$> f a <*> f b <*> f c
 
-traverseX :: Applicative f => (a -> f a) -> Vec3 a -> f (Vec3 a)
-traverseX f (Vec3 a b c) = Vec3 <$> f a <*> pure b <*> pure c
+-- traverseX :: Applicative f => (a -> f a) -> Vec3 a -> f (Vec3 a)
+-- traverseX f (Vec3 a b c) = Vec3 <$> f a <*> pure b <*> pure c
 -- relax the constraint to Functor by applying the laws:
 -- Applicative laws:
 -- identity
@@ -172,5 +173,5 @@ over :: (forall f. Functor f => (a -> f a) -> Vec3 a -> f (Vec3 a)) -> (a -> a) 
 over f f' v = runIdentity $ f (Identity . f') v
 
 get :: Lens s a -> a -> s
-get l d = getConst (l Const) d
+get l d = getConst $ (l Const) d
 
